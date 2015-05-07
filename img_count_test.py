@@ -16,8 +16,11 @@ class ImageCountTestCases(unittest.TestCase):
             Details:    Assumes that imdb url is in the format "http://www.imdb.com/title/tt<imdb_id>"
                         Loops through all entries in IMG_COUNT_FILE and check if imdb_id is in the url
         """
+        imdb_id_url_mismatches = []
         for el in self.json_dict:
-            self.assertEquals('http://www.imdb.com/title/tt' + el['imdb_id'], el['url'])
+            if 'http://www.imdb.com/title/tt' + el['imdb_id'] != el['url']:
+                imdb_id_url_mismatches.append(el)
+        self.assertEquals(imdb_id_url_mismatches,[])
 
     def testAtLeastOneImageForEach(self):
         """
@@ -29,7 +32,7 @@ class ImageCountTestCases(unittest.TestCase):
         for el in self.json_dict:
             if el['count'] < 1:
                 below_zero_elements.append(el)
-        assert
+        self.assertEquals(below_zero_elements,[])
         
 if __name__ == '__main__':
     unittest.main()
