@@ -23,6 +23,7 @@ class ImageCountTestCases(unittest.TestCase):
             Desciprtion:    Test to ensure that all required keys and only those key exist each JSON block.
             Details:    Loops through each entry and checks to see if url, count and imdb_id is in the keys.
                         Also checks to see that each JSON has exactly 3 entries.
+                        Test fails if any of the entries do not meet above criteria.
         """
         incorrect_keys = []
         correct_keys = [
@@ -45,7 +46,8 @@ class ImageCountTestCases(unittest.TestCase):
         """
             Description:    Test to ensure that IMDB ID is in the imdb url
             Details:    Assumes that imdb url is in the format "http://www.imdb.com/title/tt<imdb_id>"
-                        Loops through all entries in IMG_COUNT_FILE and check if imdb_id is in the url
+                        Loops through all entries in IMG_COUNT_FILE and check if imdb_id is in the url.
+                        If there are any, the test will fail.
         """
         imdb_id_url_mismatches = []
         for el in self.json_dict:
@@ -62,6 +64,7 @@ class ImageCountTestCases(unittest.TestCase):
             Description:    Checks to see if each count > 0
             Details:    Assumes that each imdb url should return at least 1 image
                         Will loop through all entries and report back all entries that are not above 0
+                        If any, the test will fail.
         """
         below_zero_elements = []
         for el in self.json_dict:
@@ -76,6 +79,7 @@ class ImageCountTestCases(unittest.TestCase):
             Description:    Checks to see if each imdb url is valid and resolves
             Details:    Performs a GET on all IMDB urls.
                         Collects all urls that do not respond with a 200 return code.
+                        If any, the test will fail. 
         """
         non_valid_urls = []
         for el in self.json_dict:
