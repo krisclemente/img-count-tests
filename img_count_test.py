@@ -61,16 +61,18 @@ class ImageCountTestCases(unittest.TestCase):
 
     def testJsonValueTypes(self):
         """
-            Description:    Test validate value types in json.
+            Description:    Validate value types in json.
             Details:    Checks each entry and ensures 'url' and 'imdb_id' fields are strings and 'count' is an integer.
         """
         json_with_incorrect_values = [] 
         for el in self.json_dict:
-            for key in el:
-                if key is ('url','imdb_id') and not isinstance(el[key],str):
-                    json_with_incorrect_values.append(el)
-                if key is 'count' and not isinstance(el[key],int):
-                    json_with_incorrect_values.append(el)
+            if not isinstance(el['url'],unicode):
+                json_with_incorrect_values.append(el)
+            if not isinstance(el['imdb_id'],unicode):
+                json_with_incorrect_values.append(el)
+            if not isinstance(el['count'],int):
+                print "count mismatch:" + str(type(el['url']))
+                json_with_incorrect_value.append(el)
         self.assertFalse(json_with_incorrect_values,
                             msg="The following dictionaries did not have the correct value type:\n" + str(json_with_incorrect_values))
 
