@@ -22,19 +22,12 @@ class ImageCountTestCases(unittest.TestCase):
             sys.exit(2)
         file.close()
 
-    def testOutputIsAListOfDicts(self):
+    def testOutputIsAList(self):
         """
-            Description:    Test to ensure we have a list at the highest level and dictionaries at the second level
+            Description:    Test to ensure we have a list at the highest level
             Details:    Assert that self.json_dict is a list.
-                        Assert that every element of self.json_dict is a dictionary
         """
         self.assertTrue(isinstance(self.json_dict,list))
-        non_dicts = []
-        for el in self.json_dict:
-            if not isinstance(el,dict):
-                non_dicts.append(el)
-        self.assertFalse(non_dicts,
-                            msg="The following elements in the list are not dictionaries:\n" + str(non_dicts))
 
     def testJsonKeys(self):
         """
@@ -62,19 +55,21 @@ class ImageCountTestCases(unittest.TestCase):
     def testJsonValueTypes(self):
         """
             Description:    Validate value types in json.
-            Details:    Checks each entry and ensures 'url' and 'imdb_id' fields are strings and 'count' is an integer.
+            Details:    Checks each entry and ensures 'url' and 'imdb_id' fields are unicode and 'count' is an integer.
         """
-        json_with_incorrect_values = [] 
+        json_with_incorrect_values = []
         for el in self.json_dict:
-            if not isinstance(el['url'],unicode):
+            incorrect_values = 0 
+            if 'url' in el and not isinstance(el['url'],unicode):
+                incorrect_values += 1
+            if 'imdb_id' in el and not isinstance(el['imdb_id'],unicode):
+                incorrect_values += 1
+            if 'count' in el and not isinstance(el['count'],int):
+                incorrect_values += 1
+            if incorrect_values:
                 json_with_incorrect_values.append(el)
-            if not isinstance(el['imdb_id'],unicode):
-                json_with_incorrect_values.append(el)
-            if not isinstance(el['count'],int):
-                print "count mismatch:" + str(type(el['url']))
-                json_with_incorrect_value.append(el)
         self.assertFalse(json_with_incorrect_values,
-                            msg="The following dictionaries did not have the correct value type:\n" + str(json_with_incorrect_values))
+                            msg="The following dictionaries did not have a correct value type:" + str(json_with_incorrect_values))
 
     def testImdbIdInURL(self):
         """
@@ -87,10 +82,10 @@ class ImageCountTestCases(unittest.TestCase):
         for el in self.json_dict:
             if ('imdb_id' not in el) or ('url' not in el):
                 imdb_id_url_mismatches.append(el)
-            elif 'http://www.imdb.com/title/tt' + el['imdb_id'] != el['url']:
+            elif 'http://www.imdb.com/title/tt' + str(el['imdb_id']) != el['url']:
                 imdb_id_url_mismatches.append(el)
         self.assertFalse(imdb_id_url_mismatches,
-                            "The following dictionaries had a mismatch between the url and imdb_id:\n" + str(imdb_id_url_mismatches))
+                            msg="The following dictionaries had a mismatch between the url and imdb_id:\n" + str(imdb_id_url_mismatches))
 
     def testAtLeastOneImageForEachJson(self):
         """
