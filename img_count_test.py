@@ -51,7 +51,7 @@ class ImageCountTestCases(unittest.TestCase):
         ]
         for el in self.json_dict:
             if len(el) != 3:
-                incorrect_keys.append(el)
+                json_with_incorrect_keys.append(el)
             else:
                 for key in correct_keys:
                     if key not in el:
