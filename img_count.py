@@ -1,4 +1,4 @@
-[
+print"""[
   {
     "url": "http://www.imdb.com/title/tt2278388", 
     "count": 0, 
@@ -79,4 +79,4 @@
     "count": 78, 
     "imdb_id": "0831387"
   }
-]
+]"""

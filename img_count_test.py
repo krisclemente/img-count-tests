@@ -1,26 +1,23 @@
 import unittest
 import json
-import requests
-import sys, getopt
+import sys
+import os
+import subprocess
 
 class ImageCountTestCases(unittest.TestCase):
 
-    IMG_COUNT_FILE = 'img_count_output.txt'
+    IMG_COUNT_PATH = 'img_count.py'
 
     @classmethod
     def setUpClass(self):
+        proc = subprocess.Popen(['python','img_count.py'], stdout=subprocess.PIPE)
+        output = proc.stdout.read()
         try:
-            file = open(self.IMG_COUNT_FILE)
-        except Exception, e:
-            print e
-            sys.exit(2)
-        try:
-            self.json_dict = json.loads(file.read())
+            self.json_dict = json.loads(output)
         except ValueError, e:
             print self.IMG_COUNT_FILE + " is not valid JSON!"
             print e
             sys.exit(2)
-        file.close()
 
     def testOutputIsAList(self):
         """
@@ -58,18 +55,21 @@ class ImageCountTestCases(unittest.TestCase):
             Details:    Checks each entry and ensures 'url' and 'imdb_id' fields are unicode and 'count' is an integer.
         """
         json_with_incorrect_values = []
+        incorrect_values_list = []
         for el in self.json_dict:
-            incorrect_values = 0 
+            incorrect_values = []
             if 'url' in el and not isinstance(el['url'],unicode):
-                incorrect_values += 1
+                incorrect_values.append({el['url']:str(type(el['url'])) + " and needs to be unicode"})
             if 'imdb_id' in el and not isinstance(el['imdb_id'],unicode):
-                incorrect_values += 1
+                incorrect_values.append({el['imdb_id']:str(type(el['imdb_id'])) + " and needs to be unicode"})
             if 'count' in el and not isinstance(el['count'],int):
-                incorrect_values += 1
+                incorrect_values.append({el['count']:str(type(el['count'])) + " and needs to be int"})
             if incorrect_values:
                 json_with_incorrect_values.append(el)
+                incorrect_values_list.append(incorrect_values)
         self.assertFalse(json_with_incorrect_values,
-                            msg="The following dictionaries did not have a correct value type:" + str(json_with_incorrect_values))
+                            msg="The following dictionaries did not have a correct value type:" + str(json_with_incorrect_values) +
+                            "\nDict of incorrect values:" + str(incorrect_values_list))
 
     def testImdbIdInURL(self):
         """
@@ -90,8 +90,8 @@ class ImageCountTestCases(unittest.TestCase):
     def testAtLeastOneImageForEachJson(self):
         """
             Description:    Checks to see if each count > 0
-            Details:    Assumes that each imdb url should return at least 1 image
-                        Will loop through all entries and report back all entries that are not above 0
+            Details:    Assumes that each imdb url should return at least 0 images
+                        Will loop through all entries and report back all entries that below 0
                         If any, the test will fail.
         """
         below_zero_elements = []
@@ -100,21 +100,6 @@ class ImageCountTestCases(unittest.TestCase):
                 below_zero_elements.append(el)
         self.assertFalse(below_zero_elements,
                             msg="The following dicationaries had counts below 0:\n" + str(below_zero_elements))
-
-    def testValidImdbUrl(self):
-        """
-            Description:    Checks to see if each imdb url is valid and resolves
-            Details:    Performs a GET on all IMDB urls.
-                        Collects all urls that do not respond with a 200 return code.
-                        If any, the test will fail. 
-        """
-        non_valid_urls = []
-        for el in self.json_dict:
-            response = requests.get(el['url'])
-            if response.status_code != 200:
-                non_valid_urls.append(el)
-        self.assertFalse(non_valid_urls,
-                            msg="The following dictionaries had urls that did not return 200s:\n" + str(non_valid_urls))
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
