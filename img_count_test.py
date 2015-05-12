@@ -95,19 +95,19 @@ class ImageCountTestCases(unittest.TestCase):
         self.assertFalse(imdb_id_url_mismatches,
                             msg="The following dictionaries had improperly formatted IMDB urls\n" + str(imdb_id_url_mismatches))
 
-    def testNonNegativeCounts(self):
+    def testAtLeastOneImageForEachIMDBPage(self):
         """
             Description:    Checks to see if each count > 0
             Details:    Assumes that each imdb url should return at least 0 images
                         Will loop through all entries and report back all entries that below 0
                         If any, the test will fail.
         """
-        below_zero_elements = []
+        below_one_count = []
         for el in self.json_dict:
-            if el['count'] < 0:
-                below_zero_elements.append(el)
-        self.assertFalse(below_zero_elements,
-                            msg="The following dicationaries had counts below 0:\n" + str(below_zero_elements))
+            if el['count'] < 1:
+                below_one_count.append(el)
+        self.assertFalse(below_one_count,
+                            msg="The following dicationaries had counts below 1:\n" + str(below_one_count))
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
