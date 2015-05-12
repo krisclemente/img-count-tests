@@ -95,7 +95,7 @@ class ImageCountTestCases(unittest.TestCase):
         self.assertFalse(imdb_id_url_mismatches,
                             msg="The following dictionaries had improperly formatted IMDB urls\n" + str(imdb_id_url_mismatches))
 
-    def testAtLeastOneImageForEachJson(self):
+    def testNonNegativeCounts(self):
         """
             Description:    Checks to see if each count > 0
             Details:    Assumes that each imdb url should return at least 0 images
