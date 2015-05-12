@@ -23,6 +23,10 @@ class ImageCountTestCases(unittest.TestCase):
             sys.exit(2)
 
     def testRunUnderEightSeconds(self):
+        """
+            Description:    Test to check if img_count.py runs under 8 seconds
+            Details:    Uses self.start and self.end, captured in the setUpClass
+        """
         self.assertTrue((self.end - self.start) < 8)
 
     def testOutputIsAList(self):
