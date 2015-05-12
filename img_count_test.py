@@ -1,7 +1,6 @@
 import unittest
 import json
 import sys
-import os
 import subprocess
 import time
 
