@@ -3,6 +3,7 @@ import json
 import sys
 import os
 import subprocess
+import time
 
 class ImageCountTestCases(unittest.TestCase):
 
@@ -10,14 +11,19 @@ class ImageCountTestCases(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        proc = subprocess.Popen(['python','img_count.py'], stdout=subprocess.PIPE)
+        self.start = time.time() 
+        proc = subprocess.Popen(['python',self.IMG_COUNT_PATH], stdout=subprocess.PIPE)
+        self.end = time.time() 
         output = proc.stdout.read()
         try:
             self.json_dict = json.loads(output)
         except ValueError, e:
-            print self.IMG_COUNT_FILE + " is not valid JSON!"
+            print self.IMG_COUNT_PATH + " did not output valid JSON!"
             print e
             sys.exit(2)
+
+    def testRunUnderEightSeconds(self):
+        self.assertTrue((self.end - self.start) < 8)
 
     def testOutputIsAList(self):
         """
@@ -71,12 +77,11 @@ class ImageCountTestCases(unittest.TestCase):
                             msg="The following dictionaries did not have a correct value type:" + str(json_with_incorrect_values) +
                             "\nDict of incorrect values:" + str(incorrect_values_list))
 
-    def testImdbIdInURL(self):
+    def testImdbURLFormat(self):
         """
-            Description:    Test to ensure that IMDB ID is in the imdb url
-            Details:    Assumes that imdb url is in the format "http://www.imdb.com/title/tt<imdb_id>"
+            Description:    Test to ensure that IMDB ID is in the imdb url and is in the proper format.
+            Details:    Assumes that imdb url is in the format "http://www.imdb.com/title/tt<imdb_id>".
                         Loops through all entries in IMG_COUNT_FILE and check if imdb_id is in the url.
-                        If there are any, the test will fail.
         """
         imdb_id_url_mismatches = []
         for el in self.json_dict:
@@ -85,7 +90,7 @@ class ImageCountTestCases(unittest.TestCase):
             elif 'http://www.imdb.com/title/tt' + str(el['imdb_id']) != el['url']:
                 imdb_id_url_mismatches.append(el)
         self.assertFalse(imdb_id_url_mismatches,
-                            msg="The following dictionaries had a mismatch between the url and imdb_id:\n" + str(imdb_id_url_mismatches))
+                            msg="The following dictionaries had improperly formatted IMDB urls\n" + str(imdb_id_url_mismatches))
 
     def testAtLeastOneImageForEachJson(self):
         """
@@ -103,5 +108,5 @@ class ImageCountTestCases(unittest.TestCase):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        ImageCountTestCases.IMG_COUNT_FILE = sys.argv.pop()
+        ImageCountTestCases.IMG_COUNT_PATH = sys.argv.pop()
     unittest.main()
